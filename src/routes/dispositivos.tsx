@@ -18,7 +18,7 @@ const estados: Dispositivo["estado"][] = ["Online", "Offline", "Mantenimiento"];
 function Page() {
   const { dispositivos, crearDispositivo, actualizarDispositivo } = useStore();
   const [abierto, setAbierto] = useState(false);
-  const [f, setF] = useState({ nombre: "", tipo: tipos[0], ubicacion: "", identificador: "", estado: "Offline" as Dispositivo["estado"] });
+  const [f, setF] = useState({ nombre: "", tipo: "Controlador de acceso" as TipoDispositivo, ubicacion: "", identificador: "", estado: "Offline" as Dispositivo["estado"] });
   const guardar = (e: React.FormEvent) => { e.preventDefault(); crearDispositivo(f); setAbierto(false); };
 
   return (
