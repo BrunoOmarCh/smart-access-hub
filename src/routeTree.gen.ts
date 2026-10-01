@@ -10,33 +10,193 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BiometriaRouteImport } from './routes/biometria'
+import { Route as ConfiguracionRouteImport } from './routes/configuracion'
+import { Route as DispositivosRouteImport } from './routes/dispositivos'
+import { Route as EventosRouteImport } from './routes/eventos'
+import { Route as HistorialRouteImport } from './routes/historial'
+import { Route as InvitadosRouteImport } from './routes/invitados'
+import { Route as MiPerfilRouteImport } from './routes/mi-perfil'
+import { Route as MiViviendaRouteImport } from './routes/mi-vivienda'
+import { Route as PanelRouteImport } from './routes/panel'
+import { Route as PermisosRouteImport } from './routes/permisos'
+import { Route as ResidentesRouteImport } from './routes/residentes'
+import { Route as ViviendasRouteImport } from './routes/viviendas'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BiometriaRoute = BiometriaRouteImport.update({
+  id: '/biometria',
+  path: '/biometria',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracionRoute = ConfiguracionRouteImport.update({
+  id: '/configuracion',
+  path: '/configuracion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DispositivosRoute = DispositivosRouteImport.update({
+  id: '/dispositivos',
+  path: '/dispositivos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventosRoute = EventosRouteImport.update({
+  id: '/eventos',
+  path: '/eventos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistorialRoute = HistorialRouteImport.update({
+  id: '/historial',
+  path: '/historial',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InvitadosRoute = InvitadosRouteImport.update({
+  id: '/invitados',
+  path: '/invitados',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MiPerfilRoute = MiPerfilRouteImport.update({
+  id: '/mi-perfil',
+  path: '/mi-perfil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MiViviendaRoute = MiViviendaRouteImport.update({
+  id: '/mi-vivienda',
+  path: '/mi-vivienda',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PanelRoute = PanelRouteImport.update({
+  id: '/panel',
+  path: '/panel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PermisosRoute = PermisosRouteImport.update({
+  id: '/permisos',
+  path: '/permisos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResidentesRoute = ResidentesRouteImport.update({
+  id: '/residentes',
+  path: '/residentes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ViviendasRoute = ViviendasRouteImport.update({
+  id: '/viviendas',
+  path: '/viviendas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/biometria': typeof BiometriaRoute
+  '/configuracion': typeof ConfiguracionRoute
+  '/dispositivos': typeof DispositivosRoute
+  '/eventos': typeof EventosRoute
+  '/historial': typeof HistorialRoute
+  '/invitados': typeof InvitadosRoute
+  '/mi-perfil': typeof MiPerfilRoute
+  '/mi-vivienda': typeof MiViviendaRoute
+  '/panel': typeof PanelRoute
+  '/permisos': typeof PermisosRoute
+  '/residentes': typeof ResidentesRoute
+  '/viviendas': typeof ViviendasRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/biometria': typeof BiometriaRoute
+  '/configuracion': typeof ConfiguracionRoute
+  '/dispositivos': typeof DispositivosRoute
+  '/eventos': typeof EventosRoute
+  '/historial': typeof HistorialRoute
+  '/invitados': typeof InvitadosRoute
+  '/mi-perfil': typeof MiPerfilRoute
+  '/mi-vivienda': typeof MiViviendaRoute
+  '/panel': typeof PanelRoute
+  '/permisos': typeof PermisosRoute
+  '/residentes': typeof ResidentesRoute
+  '/viviendas': typeof ViviendasRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/biometria': typeof BiometriaRoute
+  '/configuracion': typeof ConfiguracionRoute
+  '/dispositivos': typeof DispositivosRoute
+  '/eventos': typeof EventosRoute
+  '/historial': typeof HistorialRoute
+  '/invitados': typeof InvitadosRoute
+  '/mi-perfil': typeof MiPerfilRoute
+  '/mi-vivienda': typeof MiViviendaRoute
+  '/panel': typeof PanelRoute
+  '/permisos': typeof PermisosRoute
+  '/residentes': typeof ResidentesRoute
+  '/viviendas': typeof ViviendasRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/biometria'
+    | '/configuracion'
+    | '/dispositivos'
+    | '/eventos'
+    | '/historial'
+    | '/invitados'
+    | '/mi-perfil'
+    | '/mi-vivienda'
+    | '/panel'
+    | '/permisos'
+    | '/residentes'
+    | '/viviendas'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/biometria'
+    | '/configuracion'
+    | '/dispositivos'
+    | '/eventos'
+    | '/historial'
+    | '/invitados'
+    | '/mi-perfil'
+    | '/mi-vivienda'
+    | '/panel'
+    | '/permisos'
+    | '/residentes'
+    | '/viviendas'
+  id:
+    | '__root__'
+    | '/'
+    | '/biometria'
+    | '/configuracion'
+    | '/dispositivos'
+    | '/eventos'
+    | '/historial'
+    | '/invitados'
+    | '/mi-perfil'
+    | '/mi-vivienda'
+    | '/panel'
+    | '/permisos'
+    | '/residentes'
+    | '/viviendas'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BiometriaRoute: typeof BiometriaRoute
+  ConfiguracionRoute: typeof ConfiguracionRoute
+  DispositivosRoute: typeof DispositivosRoute
+  EventosRoute: typeof EventosRoute
+  HistorialRoute: typeof HistorialRoute
+  InvitadosRoute: typeof InvitadosRoute
+  MiPerfilRoute: typeof MiPerfilRoute
+  MiViviendaRoute: typeof MiViviendaRoute
+  PanelRoute: typeof PanelRoute
+  PermisosRoute: typeof PermisosRoute
+  ResidentesRoute: typeof ResidentesRoute
+  ViviendasRoute: typeof ViviendasRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +208,107 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/biometria': {
+      id: '/biometria'
+      path: '/biometria'
+      fullPath: '/biometria'
+      preLoaderRoute: typeof BiometriaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracion': {
+      id: '/configuracion'
+      path: '/configuracion'
+      fullPath: '/configuracion'
+      preLoaderRoute: typeof ConfiguracionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dispositivos': {
+      id: '/dispositivos'
+      path: '/dispositivos'
+      fullPath: '/dispositivos'
+      preLoaderRoute: typeof DispositivosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eventos': {
+      id: '/eventos'
+      path: '/eventos'
+      fullPath: '/eventos'
+      preLoaderRoute: typeof EventosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/historial': {
+      id: '/historial'
+      path: '/historial'
+      fullPath: '/historial'
+      preLoaderRoute: typeof HistorialRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invitados': {
+      id: '/invitados'
+      path: '/invitados'
+      fullPath: '/invitados'
+      preLoaderRoute: typeof InvitadosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mi-perfil': {
+      id: '/mi-perfil'
+      path: '/mi-perfil'
+      fullPath: '/mi-perfil'
+      preLoaderRoute: typeof MiPerfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mi-vivienda': {
+      id: '/mi-vivienda'
+      path: '/mi-vivienda'
+      fullPath: '/mi-vivienda'
+      preLoaderRoute: typeof MiViviendaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/panel': {
+      id: '/panel'
+      path: '/panel'
+      fullPath: '/panel'
+      preLoaderRoute: typeof PanelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/permisos': {
+      id: '/permisos'
+      path: '/permisos'
+      fullPath: '/permisos'
+      preLoaderRoute: typeof PermisosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/residentes': {
+      id: '/residentes'
+      path: '/residentes'
+      fullPath: '/residentes'
+      preLoaderRoute: typeof ResidentesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/viviendas': {
+      id: '/viviendas'
+      path: '/viviendas'
+      fullPath: '/viviendas'
+      preLoaderRoute: typeof ViviendasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BiometriaRoute: BiometriaRoute,
+  ConfiguracionRoute: ConfiguracionRoute,
+  DispositivosRoute: DispositivosRoute,
+  EventosRoute: EventosRoute,
+  HistorialRoute: HistorialRoute,
+  InvitadosRoute: InvitadosRoute,
+  MiPerfilRoute: MiPerfilRoute,
+  MiViviendaRoute: MiViviendaRoute,
+  PanelRoute: PanelRoute,
+  PermisosRoute: PermisosRoute,
+  ResidentesRoute: ResidentesRoute,
+  ViviendasRoute: ViviendasRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

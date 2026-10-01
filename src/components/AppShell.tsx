@@ -77,14 +77,14 @@ export function AppShell({
   children: ReactNode;
   tituloPagina: string;
 }) {
-  const { usuario, cerrarSesion, dispositivos } = useStore();
+  const { usuario, cargado, cerrarSesion, dispositivos } = useStore();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [menuAbierto, setMenuAbierto] = useState(false);
 
   useEffect(() => {
-    if (!usuario) navigate({ to: "/" });
-  }, [usuario, navigate]);
+    if (cargado && !usuario) navigate({ to: "/" });
+  }, [cargado, usuario, navigate]);
 
   useEffect(() => {
     setMenuAbierto(false);
