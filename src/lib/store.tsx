@@ -4,6 +4,7 @@ import {
   useContext,
   useMemo,
   useState,
+  useEffect,
   type ReactNode,
 } from "react";
 import {
@@ -27,6 +28,7 @@ import {
 
 interface StoreValue {
   usuario: Usuario | null;
+  cargado: boolean;
   iniciarSesion: (correo: string, clave: string) => { ok: boolean; error?: string };
   cerrarSesion: () => void;
   usuarios: Usuario[];
@@ -63,11 +65,13 @@ const SESION_KEY = "smartaccess.sesion";
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [usuarios, setUsuarios] = useState<Usuario[]>(usuariosSeed);
-  const [usuario, setUsuario] = useState<Usuario | null>(() => {
-    if (typeof window === "undefined") return null;
+  const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const [cargado, setCargado] = useState(false);
+  useEffect(() => {
     const correo = window.localStorage.getItem(SESION_KEY);
-    return usuariosSeed.find((u) => u.correo === correo) ?? null;
-  });
+    setUsuario(usuariosSeed.find((u) => u.correo === correo) ?? null);
+    setCargado(true);
+  }, []);
   const [residentes, setResidentes] = useState<Residente[]>(residentesSeed);
   const [viviendas, setViviendas] = useState<Vivienda[]>(viviendasSeed);
   const [invitados, setInvitados] = useState<Invitado[]>(invitadosSeed);
@@ -138,6 +142,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
     return {
       usuario,
+      cargado,
       iniciarSesion,
       cerrarSesion,
       usuarios,
@@ -184,6 +189,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     };
   }, [
     usuario,
+    cargado,
     usuarios,
     iniciarSesion,
     cerrarSesion,
