@@ -22,6 +22,34 @@ function PanelPage() {
 function Admin() {
   const { residentes, viviendas, invitados, dispositivos, eventos, nombreVivienda, nombreDispositivo } = useStore();
   const autorizados = eventos.filter((e) => e.resultado === "Autorizado").length;
+
+  // Detección de patrones inusuales (reglas simuladas sobre los eventos de demo)
+  const alertas: { titulo: string; detalle: string; tono: "peligro" | "alerta" }[] = [];
+  const rechazados = eventos.filter((e) => e.resultado === "Rechazado");
+  if (rechazados.length >= 2)
+    alertas.push({
+      titulo: "Rechazos repetidos",
+      detalle: `${rechazados.length} accesos rechazados recientes, incluyendo intentos de personas no reconocidas.`,
+      tono: "peligro",
+    });
+  const nocturnos = eventos.filter((e) => {
+    const h = Number(e.hora.split(":")[0]);
+    return h >= 22 || h < 6;
+  });
+  if (nocturnos.length > 0)
+    alertas.push({
+      titulo: "Actividad fuera de horario",
+      detalle: `${nocturnos.length} evento(s) entre las 22:00 y las 06:00.`,
+      tono: "alerta",
+    });
+  const caidos = dispositivos.filter((d) => d.estado !== "Online");
+  if (caidos.length > 0)
+    alertas.push({
+      titulo: "Dispositivos sin conexión",
+      detalle: caidos.map((d) => `${d.nombre} (${d.estado})`).join(" · "),
+      tono: "alerta",
+    });
+
   return (
     <>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -30,6 +58,24 @@ function Admin() {
         <StatCard etiqueta="Invitados activos" valor={invitados.filter((i) => i.estado === "Activo").length} nota={`${invitados.filter((i) => i.estado === "Pendiente").length} pendientes`} tono="alerta" />
         <StatCard etiqueta="Accesos autorizados" valor={`${autorizados}/${eventos.length}`} nota={`${eventos.length - autorizados} rechazados`} tono="peligro" />
       </div>
+      <Panel>
+        <PanelHeader titulo="Alertas de seguridad" descripcion="Patrones inusuales detectados (reglas simuladas; el motor de analítica llegará con la integración IoT)" />
+        {alertas.length === 0 ? (
+          <p className="text-muted-foreground p-5 text-sm">Sin patrones inusuales en los eventos recientes.</p>
+        ) : (
+          <ul className="space-y-2 p-5">
+            {alertas.map((a) => (
+              <li key={a.titulo} className="bg-surface/60 flex items-start justify-between gap-3 rounded-xl p-3">
+                <div>
+                  <p className="text-ink text-sm font-semibold">{a.titulo}</p>
+                  <p className="text-muted-foreground text-[11px]">{a.detalle}</p>
+                </div>
+                <Badge tono={a.tono} punto>{a.tono === "peligro" ? "Crítica" : "Revisar"}</Badge>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Panel>
       <div className="grid gap-6 xl:grid-cols-3">
         <Panel className="xl:col-span-2">
           <PanelHeader titulo="Eventos recientes" accion={<Link to="/eventos" className="text-primary text-xs font-semibold">Ver todos</Link>} />
