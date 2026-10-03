@@ -46,6 +46,7 @@ interface StoreValue {
   crearDispositivo: (d: Omit<Dispositivo, "id" | "ultimaConexion">) => void;
   actualizarDispositivo: (id: string, datos: Partial<Dispositivo>) => void;
   eventos: EventoAcceso[];
+  simularIntento: () => EventoAcceso;
   biometria: ReferenciaBiometrica[];
   permisos: PermisoAcceso[];
   /** Ficha de residente del usuario con sesión iniciada (si aplica). */
@@ -76,7 +77,35 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [viviendas, setViviendas] = useState<Vivienda[]>(viviendasSeed);
   const [invitados, setInvitados] = useState<Invitado[]>(invitadosSeed);
   const [dispositivos, setDispositivos] = useState<Dispositivo[]>(dispositivosSeed);
-  const [eventos] = useState<EventoAcceso[]>(eventosSeed);
+  const [eventos, setEventos] = useState<EventoAcceso[]>(eventosSeed);
+
+  /** Simula un intento de acceso en un punto de acceso (sin hardware real). */
+  const simularIntento = useCallback((): EventoAcceso => {
+    const ahora = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const activos = dispositivos.filter((d) => d.estado !== "Fuera de servicio");
+    const disp = (activos.length ? activos : dispositivos)[Math.floor(Math.random() * Math.max(1, (activos.length ? activos : dispositivos).length))];
+    const desconocido = Math.random() < 0.3;
+    const r = residentes[Math.floor(Math.random() * residentes.length)];
+    const metodo = (Math.random() < 0.5 ? "Reconocimiento facial" : "Huella dactilar") as EventoAcceso["metodo"];
+    const evento: EventoAcceso = {
+      id: nuevoId("e"),
+      fecha: `${ahora.getFullYear()}-${pad(ahora.getMonth() + 1)}-${pad(ahora.getDate())}`,
+      hora: `${pad(ahora.getHours())}:${pad(ahora.getMinutes())}`,
+      persona: desconocido || !r ? "Persona no identificada" : `${r.nombre} ${r.apellido}`,
+      viviendaId: desconocido || !r ? undefined : r.viviendaId,
+      metodo,
+      resultado: desconocido || r?.estado !== "Activo" ? "Rechazado" : "Autorizado",
+      dispositivoId: disp?.id ?? "",
+      motivo: desconocido
+        ? "Sin coincidencia biométrica (simulado)"
+        : r?.estado !== "Activo"
+          ? "Residente inactivo (simulado)"
+          : "Coincidencia biométrica válida (simulado)",
+    };
+    setEventos((prev) => [evento, ...prev]);
+    return evento;
+  }, [dispositivos, residentes]);
   const [biometria] = useState<ReferenciaBiometrica[]>(biometriaSeed);
 
   const iniciarSesion = useCallback(
@@ -176,6 +205,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       actualizarDispositivo: (id, datos) =>
         setDispositivos((prev) => prev.map((d) => (d.id === id ? { ...d, ...datos } : d))),
       eventos,
+      simularIntento,
       biometria,
       permisos,
       miResidente,
@@ -199,6 +229,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     invitados,
     dispositivos,
     eventos,
+    simularIntento,
     biometria,
   ]);
 

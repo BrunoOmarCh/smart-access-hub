@@ -4,7 +4,7 @@ import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Button, EstadoBadge, Field, Input, Modal, PageIntro, Panel, Select, Table, Td, ErrorMsg } from "@/components/kit";
 import { useStore } from "@/lib/store";
-import { fechaCorta, meta } from "@/lib/meta";
+import { fechaCorta, fechaRelativa, meta } from "@/lib/meta";
 
 export const Route = createFileRoute("/invitados")({
   head: () => meta("Invitados", "Permisos temporales de acceso para invitados."),
@@ -39,7 +39,7 @@ function Page() {
               <Td className="text-ink font-semibold">{i.nombre} {i.apellido}</Td>
               <Td>{i.documento}</Td>
               <Td>{nombreResidente(i.anfitrionId)}<span className="text-muted-foreground block text-[11px]">{nombreVivienda(i.viviendaId)}</span></Td>
-              <Td className="text-xs whitespace-nowrap">{fechaCorta(i.inicio)}<br />{fechaCorta(i.fin)}</Td>
+              <Td className="text-xs whitespace-nowrap">{fechaCorta(i.inicio)}<br />{fechaCorta(i.fin)}<br /><span className="text-muted-foreground">{new Date(i.fin) < new Date() ? "Expiró" : "Expira"} <span suppressHydrationWarning>{fechaRelativa(i.fin)}</span></span></Td>
               <Td><EstadoBadge estado={i.estado} /></Td>
               <Td className="text-right whitespace-nowrap">
                 {esAdmin && i.estado === "Pendiente" ? <Button variante="suave" onClick={() => actualizarInvitado(i.id, { estado: "Activo" })}>Aprobar</Button> : null}
