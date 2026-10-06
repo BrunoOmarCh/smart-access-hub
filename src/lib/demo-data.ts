@@ -80,11 +80,31 @@ export interface EventoAcceso {
   fecha: string; // YYYY-MM-DD
   hora: string; // HH:MM
   persona: string;
-  viviendaId?: string;
+  viviendaId?: string | undefined;
   metodo: MetodoAcceso;
   resultado: "Autorizado" | "Rechazado";
   dispositivoId: string;
   motivo: string;
+  origen?: "Demo" | "Simulación" | "Kiosco" | "API" | undefined;
+}
+
+export interface Notificacion {
+  id: string;
+  residenteId: string;
+  tipo: "Ingreso" | "Expiración" | "Aviso";
+  titulo: string;
+  mensaje: string;
+  fecha: string; // ISO
+}
+
+export interface RegistroAuditoria {
+  id: string;
+  fecha: string; // ISO
+  actor: string;
+  rol: string;
+  accion: string;
+  entidad: string;
+  detalle: string;
 }
 
 export interface ReferenciaBiometrica {
