@@ -17,7 +17,9 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
+import { ClipboardList, Monitor } from "lucide-react";
 import { useStore } from "@/lib/store";
+import { Notificaciones } from "./Notificaciones";
 import { CONDOMINIO } from "@/lib/demo-data";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +41,7 @@ const navAdmin: { grupo: string; items: Item[] }[] = [
       { to: "/dispositivos", label: "Dispositivos", icon: Cpu },
       { to: "/eventos", label: "Eventos", icon: ScrollText },
       { to: "/historial", label: "Historial", icon: ScrollText },
+      { to: "/kiosco", label: "Modo kiosco", icon: Monitor },
     ],
   },
   {
@@ -46,6 +49,7 @@ const navAdmin: { grupo: string; items: Item[] }[] = [
     items: [
       { to: "/biometria", label: "Biometría", icon: Fingerprint },
       { to: "/permisos", label: "Permisos de acceso", icon: KeyRound },
+      { to: "/auditoria", label: "Auditoría", icon: ClipboardList },
       { to: "/configuracion", label: "Configuración", icon: Settings },
     ],
   },
@@ -207,6 +211,7 @@ export function AppShell({
               <span className="bg-success-soft text-success ring-success/20 hidden items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ring-1 md:flex">
                 <ShieldCheck className="size-3.5" /> {online} dispositivos online
               </span>
+              <Notificaciones />
               <div className="bg-surface/70 flex items-center gap-3 rounded-full py-1.5 pr-2 pl-1.5 ring-1 ring-black/5">
                 <div className="bg-brand-soft font-display text-primary grid size-9 place-items-center rounded-full text-sm font-bold">
                   {iniciales}
