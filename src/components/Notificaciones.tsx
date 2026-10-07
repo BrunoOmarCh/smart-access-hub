@@ -25,7 +25,7 @@ export function Notificaciones() {
         ) : null}
       </button>
       {abierto ? (
-        <div className="bg-surface absolute right-0 z-40 mt-2 w-80 max-w-[85vw] rounded-2xl p-3 shadow-2xl ring-1 ring-black/5">
+        <div className="bg-surface fixed inset-x-3 top-20 z-40 sm:absolute sm:inset-x-auto sm:top-auto sm:right-0 sm:mt-2 sm:w-80 rounded-2xl p-3 shadow-2xl ring-1 ring-black/5">
           <p className="font-display text-ink px-2 pb-2 text-sm font-semibold">Notificaciones</p>
           {notificaciones.length === 0 ? (
             <p className="text-muted-foreground px-2 py-6 text-center text-xs">Sin notificaciones por ahora.</p>
