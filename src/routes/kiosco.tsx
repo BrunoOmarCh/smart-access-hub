@@ -17,7 +17,7 @@ function Page() {
   const verificar = (metodo: EventoAcceso["metodo"]) => {
     setEstado("verificando");
     setTimeout(() => {
-      setEstado(simularIntento({ metodo, dispositivoId: dispId || dispositivos[0]?.id, origen: "Kiosco" }));
+      setEstado(simularIntento({ metodo, dispositivoId: dispId || dispositivos[0]?.id || "", origen: "Kiosco" }));
       setTimeout(() => setEstado("espera"), 4000);
     }, 1400);
   };
