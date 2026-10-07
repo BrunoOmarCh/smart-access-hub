@@ -10,12 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuditoriaRouteImport } from './routes/auditoria'
 import { Route as BiometriaRouteImport } from './routes/biometria'
 import { Route as ConfiguracionRouteImport } from './routes/configuracion'
 import { Route as DispositivosRouteImport } from './routes/dispositivos'
 import { Route as EventosRouteImport } from './routes/eventos'
 import { Route as HistorialRouteImport } from './routes/historial'
 import { Route as InvitadosRouteImport } from './routes/invitados'
+import { Route as KioscoRouteImport } from './routes/kiosco'
 import { Route as MiPerfilRouteImport } from './routes/mi-perfil'
 import { Route as MiViviendaRouteImport } from './routes/mi-vivienda'
 import { Route as PanelRouteImport } from './routes/panel'
@@ -26,6 +28,11 @@ import { Route as ViviendasRouteImport } from './routes/viviendas'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuditoriaRoute = AuditoriaRouteImport.update({
+  id: '/auditoria',
+  path: '/auditoria',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BiometriaRoute = BiometriaRouteImport.update({
@@ -56,6 +63,11 @@ const HistorialRoute = HistorialRouteImport.update({
 const InvitadosRoute = InvitadosRouteImport.update({
   id: '/invitados',
   path: '/invitados',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KioscoRoute = KioscoRouteImport.update({
+  id: '/kiosco',
+  path: '/kiosco',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MiPerfilRoute = MiPerfilRouteImport.update({
@@ -91,12 +103,14 @@ const ViviendasRoute = ViviendasRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auditoria': typeof AuditoriaRoute
   '/biometria': typeof BiometriaRoute
   '/configuracion': typeof ConfiguracionRoute
   '/dispositivos': typeof DispositivosRoute
   '/eventos': typeof EventosRoute
   '/historial': typeof HistorialRoute
   '/invitados': typeof InvitadosRoute
+  '/kiosco': typeof KioscoRoute
   '/mi-perfil': typeof MiPerfilRoute
   '/mi-vivienda': typeof MiViviendaRoute
   '/panel': typeof PanelRoute
@@ -106,12 +120,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auditoria': typeof AuditoriaRoute
   '/biometria': typeof BiometriaRoute
   '/configuracion': typeof ConfiguracionRoute
   '/dispositivos': typeof DispositivosRoute
   '/eventos': typeof EventosRoute
   '/historial': typeof HistorialRoute
   '/invitados': typeof InvitadosRoute
+  '/kiosco': typeof KioscoRoute
   '/mi-perfil': typeof MiPerfilRoute
   '/mi-vivienda': typeof MiViviendaRoute
   '/panel': typeof PanelRoute
@@ -122,12 +138,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auditoria': typeof AuditoriaRoute
   '/biometria': typeof BiometriaRoute
   '/configuracion': typeof ConfiguracionRoute
   '/dispositivos': typeof DispositivosRoute
   '/eventos': typeof EventosRoute
   '/historial': typeof HistorialRoute
   '/invitados': typeof InvitadosRoute
+  '/kiosco': typeof KioscoRoute
   '/mi-perfil': typeof MiPerfilRoute
   '/mi-vivienda': typeof MiViviendaRoute
   '/panel': typeof PanelRoute
@@ -139,12 +157,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auditoria'
     | '/biometria'
     | '/configuracion'
     | '/dispositivos'
     | '/eventos'
     | '/historial'
     | '/invitados'
+    | '/kiosco'
     | '/mi-perfil'
     | '/mi-vivienda'
     | '/panel'
@@ -154,12 +174,14 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auditoria'
     | '/biometria'
     | '/configuracion'
     | '/dispositivos'
     | '/eventos'
     | '/historial'
     | '/invitados'
+    | '/kiosco'
     | '/mi-perfil'
     | '/mi-vivienda'
     | '/panel'
@@ -169,12 +191,14 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/auditoria'
     | '/biometria'
     | '/configuracion'
     | '/dispositivos'
     | '/eventos'
     | '/historial'
     | '/invitados'
+    | '/kiosco'
     | '/mi-perfil'
     | '/mi-vivienda'
     | '/panel'
@@ -185,12 +209,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuditoriaRoute: typeof AuditoriaRoute
   BiometriaRoute: typeof BiometriaRoute
   ConfiguracionRoute: typeof ConfiguracionRoute
   DispositivosRoute: typeof DispositivosRoute
   EventosRoute: typeof EventosRoute
   HistorialRoute: typeof HistorialRoute
   InvitadosRoute: typeof InvitadosRoute
+  KioscoRoute: typeof KioscoRoute
   MiPerfilRoute: typeof MiPerfilRoute
   MiViviendaRoute: typeof MiViviendaRoute
   PanelRoute: typeof PanelRoute
@@ -206,6 +232,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auditoria': {
+      id: '/auditoria'
+      path: '/auditoria'
+      fullPath: '/auditoria'
+      preLoaderRoute: typeof AuditoriaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/biometria': {
@@ -248,6 +281,13 @@ declare module '@tanstack/react-router' {
       path: '/invitados'
       fullPath: '/invitados'
       preLoaderRoute: typeof InvitadosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kiosco': {
+      id: '/kiosco'
+      path: '/kiosco'
+      fullPath: '/kiosco'
+      preLoaderRoute: typeof KioscoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mi-perfil': {
@@ -297,12 +337,14 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuditoriaRoute: AuditoriaRoute,
   BiometriaRoute: BiometriaRoute,
   ConfiguracionRoute: ConfiguracionRoute,
   DispositivosRoute: DispositivosRoute,
   EventosRoute: EventosRoute,
   HistorialRoute: HistorialRoute,
   InvitadosRoute: InvitadosRoute,
+  KioscoRoute: KioscoRoute,
   MiPerfilRoute: MiPerfilRoute,
   MiViviendaRoute: MiViviendaRoute,
   PanelRoute: PanelRoute,
