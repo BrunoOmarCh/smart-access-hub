@@ -76,6 +76,7 @@ function Page() {
           <div className="flex justify-end gap-2 sm:col-span-2"><Button type="button" variante="suave" onClick={() => setAbierto(false)}>Cancelar</Button><Button type="submit">Registrar</Button></div>
         </form>
       </Modal>
+      <PaseInvitado invitado={pase} onClose={() => setPase(null)} anfitrion={pase ? nombreResidente(pase.anfitrionId) : ""} vivienda={pase ? nombreVivienda(pase.viviendaId) : ""} />
     </AppShell>
   );
 }
