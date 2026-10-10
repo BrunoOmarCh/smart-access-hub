@@ -86,6 +86,33 @@
   --ring: oklch(0.546 0.215 262.9);
 }
 
+.dark {
+  --canvas: oklch(0.17 0.03 265);
+  --surface: oklch(0.23 0.035 265);
+  --background: oklch(0.17 0.03 265);
+  --foreground: oklch(0.95 0.01 260);
+  --ink: oklch(0.95 0.01 260);
+  --card: oklch(0.23 0.035 265);
+  --card-foreground: oklch(0.95 0.01 260);
+  --popover: oklch(0.23 0.035 265);
+  --popover-foreground: oklch(0.95 0.01 260);
+  --primary: oklch(0.65 0.19 262.9);
+  --brand-soft: oklch(0.3 0.07 262.9);
+  --secondary: oklch(0.28 0.03 260);
+  --secondary-foreground: oklch(0.92 0.01 260);
+  --muted: oklch(0.28 0.03 260);
+  --muted-foreground: oklch(0.72 0.03 257);
+  --danger-soft: oklch(0.3 0.08 17.6);
+  --success: oklch(0.7 0.14 160.5);
+  --success-soft: oklch(0.3 0.06 160.5);
+  --warning: oklch(0.78 0.13 70);
+  --warning-soft: oklch(0.32 0.06 70);
+  --neutral-soft: oklch(0.28 0.02 260);
+  --border: oklch(0.33 0.03 260);
+  --input: oklch(0.33 0.03 260);
+  --ring: oklch(0.65 0.19 262.9);
+}
+
 @utility glass {
   background: color-mix(in oklab, var(--surface) 62%, transparent);
   backdrop-filter: blur(18px);

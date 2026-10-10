@@ -17,7 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
-import { ClipboardList, Monitor } from "lucide-react";
+import { ClipboardList, Monitor, Moon, Sun } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { Notificaciones } from "./Notificaciones";
 import { CONDOMINIO } from "@/lib/demo-data";
@@ -81,7 +81,7 @@ export function AppShell({
   children: ReactNode;
   tituloPagina: string;
 }) {
-  const { usuario, cargado, cerrarSesion, dispositivos } = useStore();
+  const { usuario, cargado, cerrarSesion, dispositivos, tema, alternarTema } = useStore();
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [menuAbierto, setMenuAbierto] = useState(false);
@@ -211,6 +211,7 @@ export function AppShell({
               <span className="bg-success-soft text-success ring-success/20 hidden items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ring-1 md:flex">
                 <ShieldCheck className="size-3.5" /> {online} dispositivos online
               </span>
+              <button onClick={alternarTema} aria-label={tema === "oscuro" ? "Usar tema claro" : "Usar tema oscuro"} className="bg-surface/70 text-ink rounded-full p-2.5 ring-1 ring-black/5">{tema === "oscuro" ? <Sun className="size-4" /> : <Moon className="size-4" />}</button>
               <Notificaciones />
               <div className="bg-surface/70 flex items-center gap-3 rounded-full py-1.5 pr-2 pl-1.5 ring-1 ring-black/5">
                 <div className="bg-brand-soft font-display text-primary grid size-9 place-items-center rounded-full text-sm font-bold">
