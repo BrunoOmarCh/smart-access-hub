@@ -22,6 +22,7 @@ import { Route as MiPerfilRouteImport } from './routes/mi-perfil'
 import { Route as MiViviendaRouteImport } from './routes/mi-vivienda'
 import { Route as PanelRouteImport } from './routes/panel'
 import { Route as PermisosRouteImport } from './routes/permisos'
+import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as ResidentesRouteImport } from './routes/residentes'
 import { Route as ViviendasRouteImport } from './routes/viviendas'
 
@@ -90,6 +91,11 @@ const PermisosRoute = PermisosRouteImport.update({
   path: '/permisos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RegistroRoute = RegistroRouteImport.update({
+  id: '/registro',
+  path: '/registro',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResidentesRoute = ResidentesRouteImport.update({
   id: '/residentes',
   path: '/residentes',
@@ -115,6 +121,7 @@ export interface FileRoutesByFullPath {
   '/mi-vivienda': typeof MiViviendaRoute
   '/panel': typeof PanelRoute
   '/permisos': typeof PermisosRoute
+  '/registro': typeof RegistroRoute
   '/residentes': typeof ResidentesRoute
   '/viviendas': typeof ViviendasRoute
 }
@@ -132,6 +139,7 @@ export interface FileRoutesByTo {
   '/mi-vivienda': typeof MiViviendaRoute
   '/panel': typeof PanelRoute
   '/permisos': typeof PermisosRoute
+  '/registro': typeof RegistroRoute
   '/residentes': typeof ResidentesRoute
   '/viviendas': typeof ViviendasRoute
 }
@@ -150,6 +158,7 @@ export interface FileRoutesById {
   '/mi-vivienda': typeof MiViviendaRoute
   '/panel': typeof PanelRoute
   '/permisos': typeof PermisosRoute
+  '/registro': typeof RegistroRoute
   '/residentes': typeof ResidentesRoute
   '/viviendas': typeof ViviendasRoute
 }
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/mi-vivienda'
     | '/panel'
     | '/permisos'
+    | '/registro'
     | '/residentes'
     | '/viviendas'
   fileRoutesByTo: FileRoutesByTo
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
     | '/mi-vivienda'
     | '/panel'
     | '/permisos'
+    | '/registro'
     | '/residentes'
     | '/viviendas'
   id:
@@ -203,6 +214,7 @@ export interface FileRouteTypes {
     | '/mi-vivienda'
     | '/panel'
     | '/permisos'
+    | '/registro'
     | '/residentes'
     | '/viviendas'
   fileRoutesById: FileRoutesById
@@ -221,6 +233,7 @@ export interface RootRouteChildren {
   MiViviendaRoute: typeof MiViviendaRoute
   PanelRoute: typeof PanelRoute
   PermisosRoute: typeof PermisosRoute
+  RegistroRoute: typeof RegistroRoute
   ResidentesRoute: typeof ResidentesRoute
   ViviendasRoute: typeof ViviendasRoute
 }
@@ -318,6 +331,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PermisosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/registro': {
+      id: '/registro'
+      path: '/registro'
+      fullPath: '/registro'
+      preLoaderRoute: typeof RegistroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/residentes': {
       id: '/residentes'
       path: '/residentes'
@@ -349,6 +369,7 @@ const rootRouteChildren: RootRouteChildren = {
   MiViviendaRoute: MiViviendaRoute,
   PanelRoute: PanelRoute,
   PermisosRoute: PermisosRoute,
+  RegistroRoute: RegistroRoute,
   ResidentesRoute: ResidentesRoute,
   ViviendasRoute: ViviendasRoute,
 }
