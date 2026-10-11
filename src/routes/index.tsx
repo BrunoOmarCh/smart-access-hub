@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Fingerprint, ScanFace, ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button, ErrorMsg, Field, Input } from "@/components/kit";
@@ -21,9 +21,13 @@ function Login() {
     if (usuario) navigate({ to: "/panel" });
   }, [usuario, navigate]);
 
-  const enviar = (e: React.FormEvent) => {
+  const [enviando, setEnviando] = useState(false);
+  const enviar = async (e: React.FormEvent) => {
     e.preventDefault();
-    const r = iniciarSesion(correo, clave);
+    setError("");
+    setEnviando(true);
+    const r = await iniciarSesion(correo, clave);
+    setEnviando(false);
     if (!r.ok) setError(r.error ?? "Error");
   };
 
@@ -76,7 +80,11 @@ function Login() {
             <Input type="password" required value={clave} onChange={(e) => setClave(e.target.value)} placeholder="••••••••" />
           </Field>
           <ErrorMsg>{error}</ErrorMsg>
-          <Button type="submit" className="w-full py-2.5">Ingresar</Button>
+          <Button type="submit" disabled={enviando} className="w-full py-2.5">{enviando ? "Ingresando…" : "Ingresar"}</Button>
+          <p className="text-muted-foreground text-center text-sm">
+            ¿Eres residente y no tienes cuenta?{" "}
+            <Link to="/registro" className="text-primary font-semibold hover:underline">Solicitar acceso</Link>
+          </p>
           <div className="bg-neutral-soft space-y-2 rounded-2xl p-4 text-xs">
             <p className="text-ink font-semibold">Cuentas de demostración (clave: demo1234)</p>
             {["admin@smartaccess.demo", "residente@smartaccess.demo"].map((c) => (

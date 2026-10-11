@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus, Search } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { Button, EstadoBadge, Field, Input, Modal, PageIntro, Panel, Select, Table, Td } from "@/components/kit";
 import { useStore } from "@/lib/store";
@@ -15,7 +16,19 @@ export const Route = createFileRoute("/residentes")({
 const vacio = { nombre: "", apellido: "", documento: "", correo: "", telefono: "", viviendaId: "", estado: "Activo" as const };
 
 function Page() {
-  const { residentes, viviendas, crearResidente, actualizarResidente, nombreVivienda } = useStore();
+  const { residentes, viviendas, crearResidente, actualizarResidente, nombreVivienda, solicitudes, aprobarSolicitud, rechazarSolicitud } = useStore();
+  const [asignar, setAsignar] = useState<Record<string, string>>({});
+  const pendientes = solicitudes.filter((x) => x.estado === "Pendiente");
+  const viviendaPara = (id: string, pedida: string) =>
+    asignar[id] ?? viviendas.find((v) => v.codigo.toLowerCase() === pedida.trim().toLowerCase())?.id ?? viviendas[0]?.id ?? "";
+  const aprobar = async (id: string, pedida: string) => {
+    const err = await aprobarSolicitud(id, viviendaPara(id, pedida));
+    err ? toast.error(err) : toast.success("Cuenta aprobada");
+  };
+  const rechazar = async (id: string) => {
+    const err = await rechazarSolicitud(id);
+    err ? toast.error(err) : toast.success("Solicitud rechazada");
+  };
   const [q, setQ] = useState("");
   const [editando, setEditando] = useState<Residente | null>(null);
   const [abierto, setAbierto] = useState(false);
@@ -37,6 +50,29 @@ function Page() {
   return (
     <AppShell tituloPagina="Residentes">
       <PageIntro titulo="Residentes" descripcion="Personas autorizadas a vivir en el condominio." accion={<Button onClick={() => abrir()}><Plus className="size-4" />Nuevo residente</Button>} />
+      {pendientes.length ? (
+        <Panel>
+          <div className="p-5 pb-0">
+            <h2 className="font-display text-ink text-lg font-bold">Solicitudes pendientes ({pendientes.length})</h2>
+            <p className="text-muted-foreground text-sm">Personas que crearon su cuenta y esperan aprobación. Asigna su vivienda antes de aprobar.</p>
+          </div>
+          <Table columnas={["Nombre", "Documento", "Contacto", "Vivienda pedida", "Asignar vivienda", ""]}>
+            {pendientes.map((x) => (
+              <tr key={x.id}>
+                <Td className="text-ink font-semibold">{x.nombre} {x.apellido}</Td>
+                <Td>{x.documento || "—"}</Td>
+                <Td>{x.correo}<span className="text-muted-foreground block text-[11px]">{x.telefono}</span></Td>
+                <Td>{x.viviendaSolicitada || "—"}</Td>
+                <Td><Select value={viviendaPara(x.id, x.viviendaSolicitada)} onChange={(e) => setAsignar({ ...asignar, [x.id]: e.target.value })}>{viviendas.map((v) => <option key={v.id} value={v.id}>{v.codigo}</option>)}</Select></Td>
+                <Td className="text-right whitespace-nowrap">
+                  <Button variante="peligro" onClick={() => rechazar(x.id)}>Rechazar</Button>
+                  <Button onClick={() => aprobar(x.id, x.viviendaSolicitada)}>Aprobar</Button>
+                </Td>
+              </tr>
+            ))}
+          </Table>
+        </Panel>
+      ) : null}
       <Panel>
         <div className="p-5"><div className="relative max-w-xs"><Search className="text-muted-foreground absolute top-2.5 left-3 size-4" /><Input className="pl-9" placeholder="Buscar por nombre o documento" value={q} onChange={(e) => setQ(e.target.value)} /></div></div>
         <Table columnas={["Nombre", "Documento", "Contacto", "Vivienda", "Estado", ""]}>
