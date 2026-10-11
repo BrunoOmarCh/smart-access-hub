@@ -101,7 +101,8 @@ const fechaHora = (d: Date) => ({
 });
 
 /* ---------- Mapeo base de datos <-> app ---------- */
-type Fila = Record<string, any>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Fila = any;
 const deResidente = (r: Fila): Residente => ({
   id: r.id, nombre: r.nombre, apellido: r.apellido, documento: r.documento, correo: r.correo,
   telefono: r.telefono, viviendaId: r.vivienda_id ?? "", estado: r.estado, fechaRegistro: r.fecha_registro,
@@ -141,7 +142,7 @@ const aEvento = (e: EventoAcceso) => ({
   id: e.id, fecha: e.fecha, hora: e.hora, persona: e.persona, vivienda_id: e.viviendaId ?? null, metodo: e.metodo,
   resultado: e.resultado, dispositivo_id: e.dispositivoId || null, motivo: e.motivo, origen: e.origen ?? null,
 });
-function limpiar<T extends Fila>(o: T): Partial<T> {
+function limpiar<T extends object>(o: T): Partial<T> {
   return Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as Partial<T>;
 }
 const ordenarEventos = (l: EventoAcceso[]) =>
@@ -241,7 +242,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       telefono: perfil.telefono || mio?.telefono || "",
       rol: esAdmin ? "Administrador" : "Residente",
       estado: "Activo",
-      residenteId: mio?.id,
+      ...(mio ? { residenteId: mio.id } : {}),
     });
     setCargado(true);
   }, []);
