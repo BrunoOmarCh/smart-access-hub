@@ -231,7 +231,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       id: p.id, nombre: p.nombre, apellido: p.apellido, correo: p.correo, telefono: p.telefono,
       documento: p.documento, viviendaSolicitada: p.vivienda_solicitada, estado: p.estado, fecha: p.created_at,
     })));
-    const mio = res.find((r) => (r as Residente & { userId?: string }) && (q[0].data ?? []).find((f: Fila) => f.id === r.id)?.user_id === userId);
+    const filaMia = (q[0].data ?? []).find((f: Fila) => f.user_id === userId);
+    const mio = filaMia ? deResidente(filaMia) : undefined;
     setUsuario({
       id: userId,
       nombre: perfil.nombre || mio?.nombre || "Usuario",
