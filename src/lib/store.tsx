@@ -50,6 +50,14 @@ export interface DatosRegistro {
   vivienda: string;
 }
 
+export interface ResultadoReconocimiento {
+  reconocido: boolean;
+  biometriaRegistrada?: boolean | undefined;
+  residenteId?: string | undefined;
+  confianza?: number | undefined;
+  motivo?: string | undefined;
+}
+
 interface StoreValue {
   usuario: Usuario | null;
   cargado: boolean;
@@ -76,7 +84,10 @@ interface StoreValue {
   eventos: EventoAcceso[];
   simularIntento: (op?: OpcionesIntento) => EventoAcceso;
   registrarEvento: (e: Omit<EventoAcceso, "id">) => EventoAcceso;
+  validarPase: (codigo: string, dispositivoId: string) => Promise<EventoAcceso>;
+  verificarRostro: (frame?: string) => Promise<ResultadoReconocimiento>;
   biometria: ReferenciaBiometrica[];
+  registrarRostro: (residenteId: string) => Promise<{ ok: boolean; error?: string }>;
   permisos: PermisoAcceso[];
   notificaciones: (Notificacion & { leida: boolean })[];
   marcarLeidas: () => void;
@@ -104,46 +115,115 @@ const fechaHora = (d: Date) => ({
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Fila = any;
 const deResidente = (r: Fila): Residente => ({
-  id: r.id, nombre: r.nombre, apellido: r.apellido, documento: r.documento, correo: r.correo,
-  telefono: r.telefono, viviendaId: r.vivienda_id ?? "", estado: r.estado, fechaRegistro: r.fecha_registro,
+  id: r.id,
+  nombre: r.nombre,
+  apellido: r.apellido,
+  documento: r.documento,
+  correo: r.correo,
+  telefono: r.telefono,
+  viviendaId: r.vivienda_id ?? "",
+  estado: r.estado,
+  fechaRegistro: r.fecha_registro,
 });
-const aResidente = (r: Partial<Residente>) => limpiar({
-  nombre: r.nombre, apellido: r.apellido, documento: r.documento, correo: r.correo,
-  telefono: r.telefono, vivienda_id: r.viviendaId === undefined ? undefined : r.viviendaId || null, estado: r.estado,
-});
+const aResidente = (r: Partial<Residente>) =>
+  limpiar({
+    nombre: r.nombre,
+    apellido: r.apellido,
+    documento: r.documento,
+    correo: r.correo,
+    telefono: r.telefono,
+    vivienda_id: r.viviendaId === undefined ? undefined : r.viviendaId || null,
+    estado: r.estado,
+  });
 const deVivienda = (v: Fila): Vivienda => ({
-  id: v.id, codigo: v.codigo, torre: v.torre, piso: v.piso, estado: v.estado, residentePrincipal: v.residente_principal ?? undefined,
+  id: v.id,
+  codigo: v.codigo,
+  torre: v.torre,
+  piso: v.piso,
+  estado: v.estado,
+  residentePrincipal: v.residente_principal ?? undefined,
 });
-const aVivienda = (v: Partial<Vivienda>) => limpiar({
-  codigo: v.codigo, torre: v.torre, piso: v.piso, estado: v.estado,
-  residente_principal: v.residentePrincipal === undefined ? undefined : v.residentePrincipal || null,
-});
+const aVivienda = (v: Partial<Vivienda>) =>
+  limpiar({
+    codigo: v.codigo,
+    torre: v.torre,
+    piso: v.piso,
+    estado: v.estado,
+    residente_principal:
+      v.residentePrincipal === undefined ? undefined : v.residentePrincipal || null,
+  });
 const deInvitado = (i: Fila): Invitado => ({
-  id: i.id, nombre: i.nombre, apellido: i.apellido, documento: i.documento, anfitrionId: i.anfitrion_id,
-  viviendaId: i.vivienda_id ?? "", inicio: i.inicio, fin: i.fin, estado: i.estado,
+  id: i.id,
+  qrToken: i.qr_token,
+  qrUsadoAt: i.qr_usado_at ?? null,
+  nombre: i.nombre,
+  apellido: i.apellido,
+  documento: i.documento,
+  anfitrionId: i.anfitrion_id,
+  viviendaId: i.vivienda_id ?? "",
+  inicio: i.inicio,
+  fin: i.fin,
+  estado: i.estado,
 });
-const aInvitado = (i: Partial<Invitado>) => limpiar({
-  nombre: i.nombre, apellido: i.apellido, documento: i.documento, anfitrion_id: i.anfitrionId,
-  vivienda_id: i.viviendaId === undefined ? undefined : i.viviendaId || null, inicio: i.inicio, fin: i.fin, estado: i.estado,
-});
+const aInvitado = (i: Partial<Invitado>) =>
+  limpiar({
+    nombre: i.nombre,
+    apellido: i.apellido,
+    documento: i.documento,
+    anfitrion_id: i.anfitrionId,
+    vivienda_id: i.viviendaId === undefined ? undefined : i.viviendaId || null,
+    inicio: i.inicio,
+    fin: i.fin,
+    estado: i.estado,
+    qr_token: i.qrToken,
+  });
 const deDispositivo = (d: Fila): Dispositivo => ({
-  id: d.id, nombre: d.nombre, tipo: d.tipo, ubicacion: d.ubicacion, estado: d.estado,
-  ultimaConexion: d.ultima_conexion, identificador: d.identificador,
+  id: d.id,
+  nombre: d.nombre,
+  tipo: d.tipo,
+  ubicacion: d.ubicacion,
+  estado: d.estado,
+  ultimaConexion: d.ultima_conexion,
+  identificador: d.identificador,
 });
-const aDispositivo = (d: Partial<Dispositivo>) => limpiar({
-  nombre: d.nombre, tipo: d.tipo, ubicacion: d.ubicacion, estado: d.estado,
-  ultima_conexion: d.ultimaConexion, identificador: d.identificador,
-});
+const aDispositivo = (d: Partial<Dispositivo>) =>
+  limpiar({
+    nombre: d.nombre,
+    tipo: d.tipo,
+    ubicacion: d.ubicacion,
+    estado: d.estado,
+    ultima_conexion: d.ultimaConexion,
+    identificador: d.identificador,
+  });
 const deEvento = (e: Fila): EventoAcceso => ({
-  id: e.id, fecha: e.fecha, hora: e.hora, persona: e.persona, viviendaId: e.vivienda_id ?? undefined,
-  metodo: e.metodo, resultado: e.resultado, dispositivoId: e.dispositivo_id ?? "", motivo: e.motivo, origen: e.origen ?? undefined,
+  id: e.id,
+  fecha: e.fecha,
+  hora: e.hora,
+  persona: e.persona,
+  viviendaId: e.vivienda_id ?? undefined,
+  metodo: e.metodo,
+  resultado: e.resultado,
+  dispositivoId: e.dispositivo_id ?? "",
+  motivo: e.motivo,
+  origen: e.origen ?? undefined,
 });
 const aEvento = (e: EventoAcceso) => ({
-  id: e.id, fecha: e.fecha, hora: e.hora, persona: e.persona, vivienda_id: e.viviendaId ?? null, metodo: e.metodo,
-  resultado: e.resultado, dispositivo_id: e.dispositivoId || null, motivo: e.motivo, origen: e.origen ?? null,
+  id: e.id,
+  fecha: e.fecha,
+  hora: e.hora,
+  persona: e.persona,
+  vivienda_id: e.viviendaId ?? null,
+  metodo: e.metodo,
+  resultado: e.resultado,
+  dispositivo_id: e.dispositivoId || null,
+  motivo: e.motivo,
+  origen: e.origen ?? null,
 });
-function limpiar<T extends object>(o: T): Partial<T> {
-  return Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as Partial<T>;
+type CamposDefinidos<T extends object> = { [K in keyof T]?: Exclude<T[K], undefined> };
+function limpiar<T extends object>(o: T): CamposDefinidos<T> {
+  return Object.fromEntries(
+    Object.entries(o).filter(([, v]) => v !== undefined),
+  ) as CamposDefinidos<T>;
 }
 const ordenarEventos = (l: EventoAcceso[]) =>
   [...l].sort((a, b) => `${b.fecha} ${b.hora}`.localeCompare(`${a.fecha} ${a.hora}`));
@@ -154,6 +234,11 @@ const avisarError = (error: { message: string } | null) => {
     import("sonner").then(({ toast }) => toast.error("No se pudo guardar: " + error.message));
   }
 };
+
+const mensajeErrorAuth = (message: string) =>
+  message.toLowerCase().includes("email logins are disabled")
+    ? "El inicio de sesión por correo está deshabilitado en Supabase. Habilita el proveedor Email en Authentication > Sign In / Providers."
+    : message;
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
@@ -209,8 +294,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       supabase.from("eventos").select("*").order("created_at", { ascending: false }).limit(1000),
       supabase.from("biometria").select("*"),
       supabase.from("notificaciones").select("*").order("fecha", { ascending: false }).limit(200),
-      esAdmin ? supabase.from("auditoria").select("*").order("fecha", { ascending: false }).limit(500) : Promise.resolve({ data: [] as Fila[] }),
-      esAdmin ? supabase.from("profiles").select("*").neq("estado", "Activo").order("created_at", { ascending: false }) : Promise.resolve({ data: [] as Fila[] }),
+      esAdmin
+        ? supabase.from("auditoria").select("*").order("fecha", { ascending: false }).limit(500)
+        : Promise.resolve({ data: [] as Fila[] }),
+      esAdmin
+        ? supabase
+            .from("profiles")
+            .select("*")
+            .neq("estado", "Activo")
+            .order("created_at", { ascending: false })
+        : Promise.resolve({ data: [] as Fila[] }),
     ]);
     const res = (q[0].data ?? []).map(deResidente);
     setResidentes(res);
@@ -218,20 +311,51 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setInvitados((q[2].data ?? []).map(deInvitado));
     setDispositivos((q[3].data ?? []).map(deDispositivo));
     setEventos(ordenarEventos((q[4].data ?? []).map(deEvento)));
-    setBiometria((q[5].data ?? []).map((b: Fila) => ({
-      id: b.id, residenteId: b.residente_id, tipo: b.tipo, estado: b.estado,
-      fechaRegistro: b.fecha_registro, fechaActualizacion: b.fecha_actualizacion,
-    })));
-    setNotifs((q[6].data ?? []).map((n: Fila) => ({
-      id: n.id, residenteId: n.residente_id, tipo: n.tipo, titulo: n.titulo, mensaje: n.mensaje, fecha: n.fecha, leida: n.leida,
-    })));
-    setAuditoria((q[7].data ?? []).map((a: Fila) => ({
-      id: a.id, fecha: a.fecha, actor: a.actor, rol: a.rol, accion: a.accion, entidad: a.entidad, detalle: a.detalle,
-    })));
-    setSolicitudes((q[8].data ?? []).map((p: Fila) => ({
-      id: p.id, nombre: p.nombre, apellido: p.apellido, correo: p.correo, telefono: p.telefono,
-      documento: p.documento, viviendaSolicitada: p.vivienda_solicitada, estado: p.estado, fecha: p.created_at,
-    })));
+    setBiometria(
+      (q[5].data ?? []).map((b: Fila) => ({
+        id: b.id,
+        residenteId: b.residente_id,
+        tipo: b.tipo,
+        estado: b.estado,
+        fechaRegistro: b.fecha_registro,
+        fechaActualizacion: b.fecha_actualizacion,
+      })),
+    );
+    setNotifs(
+      (q[6].data ?? []).map((n: Fila) => ({
+        id: n.id,
+        residenteId: n.residente_id,
+        tipo: n.tipo,
+        titulo: n.titulo,
+        mensaje: n.mensaje,
+        fecha: n.fecha,
+        leida: n.leida,
+      })),
+    );
+    setAuditoria(
+      (q[7].data ?? []).map((a: Fila) => ({
+        id: a.id,
+        fecha: a.fecha,
+        actor: a.actor,
+        rol: a.rol,
+        accion: a.accion,
+        entidad: a.entidad,
+        detalle: a.detalle,
+      })),
+    );
+    setSolicitudes(
+      (q[8].data ?? []).map((p: Fila) => ({
+        id: p.id,
+        nombre: p.nombre,
+        apellido: p.apellido,
+        correo: p.correo,
+        telefono: p.telefono,
+        documento: p.documento,
+        viviendaSolicitada: p.vivienda_solicitada,
+        estado: p.estado,
+        fecha: p.created_at,
+      })),
+    );
     const filaMia = (q[0].data ?? []).find((f: Fila) => f.user_id === userId);
     const mio = filaMia ? deResidente(filaMia) : undefined;
     setUsuario({
@@ -260,31 +384,97 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     (accion: string, entidad: string, detalle: string) => {
       if (!usuario) return;
       const reg = {
-        id: nuevoId(), fecha: new Date().toISOString(), actor: `${usuario.nombre} ${usuario.apellido}`,
-        rol: usuario.rol, accion, entidad, detalle,
+        id: nuevoId(),
+        fecha: new Date().toISOString(),
+        actor: `${usuario.nombre} ${usuario.apellido}`,
+        rol: usuario.rol,
+        accion,
+        entidad,
+        detalle,
       };
       setAuditoria((prev) => [reg, ...prev]);
-      supabase.from("auditoria").insert({ ...reg, actor_id: usuario.id }).then(({ error }) => error && console.error(error));
+      supabase
+        .from("auditoria")
+        .insert({ ...reg, actor_id: usuario.id })
+        .then(({ error }) => error && console.error(error));
     },
     [usuario],
   );
 
-  const notificar = useCallback(
-    (n: Omit<Notificacion, "id" | "fecha">) => {
-      const fila = { ...n, id: nuevoId(), fecha: new Date().toISOString(), leida: false };
-      setNotifs((prev) => [fila, ...prev]);
-      supabase.from("notificaciones").insert({
-        id: fila.id, residente_id: n.residenteId, tipo: n.tipo, titulo: n.titulo, mensaje: n.mensaje, fecha: fila.fecha,
-      }).then(({ error }) => error && console.error(error));
-    },
-    [],
-  );
+  const notificar = useCallback((n: Omit<Notificacion, "id" | "fecha">) => {
+    const fila = { ...n, id: nuevoId(), fecha: new Date().toISOString(), leida: false };
+    setNotifs((prev) => [fila, ...prev]);
+    supabase
+      .from("notificaciones")
+      .insert({
+        id: fila.id,
+        residente_id: n.residenteId,
+        tipo: n.tipo,
+        titulo: n.titulo,
+        mensaje: n.mensaje,
+        fecha: fila.fecha,
+      })
+      .then(({ error }) => error && console.error(error));
+  }, []);
 
   const registrarEvento = useCallback((e: Omit<EventoAcceso, "id">) => {
     const ev = { ...e, id: nuevoId() };
     setEventos((prev) => [ev, ...prev]);
-    supabase.from("eventos").insert(aEvento(ev)).then(({ error }) => avisarError(error));
+    supabase
+      .from("eventos")
+      .insert(aEvento(ev))
+      .then(({ error }) => avisarError(error));
     return ev;
+  }, []);
+
+  const validarPase = useCallback(async (codigo: string, dispositivoId: string) => {
+    const texto = codigo.trim();
+    const token = texto.startsWith("SMARTACCESS:PASE:")
+      ? texto.slice("SMARTACCESS:PASE:".length)
+      : texto;
+    const { data, error } = await supabase.rpc("consumir_pase", {
+      _token: token,
+      _dispositivo_id: dispositivoId || null,
+    });
+    if (error) throw new Error(error.message);
+    if (!data || typeof data !== "object" || Array.isArray(data))
+      throw new Error("El servidor devolvió una respuesta inválida al verificar el pase.");
+
+    const eventoId = data["evento_id"];
+    const fecha = data["fecha"];
+    const hora = data["hora"];
+    const persona = data["persona"];
+    const motivo = data["motivo"];
+    if (
+      typeof eventoId !== "string" ||
+      typeof fecha !== "string" ||
+      typeof hora !== "string" ||
+      typeof persona !== "string" ||
+      typeof motivo !== "string"
+    )
+      throw new Error("La respuesta del servidor no contiene el resultado del acceso.");
+
+    const viviendaId = typeof data["vivienda_id"] === "string" ? data["vivienda_id"] : undefined;
+    const evento: EventoAcceso = {
+      id: eventoId,
+      fecha,
+      hora,
+      persona,
+      viviendaId,
+      metodo: "Invitado",
+      resultado: data["autorizado"] === true ? "Autorizado" : "Rechazado",
+      dispositivoId,
+      motivo,
+      origen: "Kiosco",
+    };
+    setEventos((prev) => ordenarEventos([evento, ...prev.filter((e) => e.id !== evento.id)]));
+
+    const qrUsadoAt = data["qr_usado_at"];
+    const invitadoId = data["invitado_id"];
+    if (typeof invitadoId === "string" && typeof qrUsadoAt === "string")
+      setInvitados((prev) => prev.map((i) => (i.id === invitadoId ? { ...i, qrUsadoAt } : i)));
+
+    return evento;
   }, []);
 
   /** Simula un intento de acceso en un punto de acceso (sin hardware real). */
@@ -293,15 +483,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const ahora = new Date();
       const activos = dispositivos.filter((d) => d.estado !== "Offline");
       const pool = activos.length ? activos : dispositivos;
-      const disp = dispositivos.find((d) => d.id === op.dispositivoId) ?? pool[Math.floor(Math.random() * pool.length)];
+      const disp =
+        dispositivos.find((d) => d.id === op.dispositivoId) ??
+        pool[Math.floor(Math.random() * pool.length)];
       const origen = op.origen ?? "Simulación";
       const invitadosActivos = invitados.filter((i) => i.estado === "Activo");
       const inv =
         invitados.find((i) => i.id === op.invitadoId) ??
-        (!op.metodo && Math.random() < 0.2 ? invitadosActivos[Math.floor(Math.random() * invitadosActivos.length)] : undefined);
+        (!op.metodo && Math.random() < 0.2
+          ? invitadosActivos[Math.floor(Math.random() * invitadosActivos.length)]
+          : undefined);
 
       if (inv) {
-        const vigente = inv.estado === "Activo" && new Date(inv.inicio) <= ahora && ahora <= new Date(inv.fin);
+        const vigente =
+          inv.estado === "Activo" && new Date(inv.inicio) <= ahora && ahora <= new Date(inv.fin);
         const ev = registrarEvento({
           ...fechaHora(ahora),
           persona: `${inv.nombre} ${inv.apellido} (invitado)`,
@@ -309,7 +504,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           metodo: "Invitado",
           resultado: vigente ? "Autorizado" : "Rechazado",
           dispositivoId: disp?.id ?? "",
-          motivo: vigente ? "Pase temporal vigente" : `Pase no vigente (${inv.estado.toLowerCase()} o fuera de horario)`,
+          motivo: vigente
+            ? "Pase temporal vigente"
+            : `Pase no vigente (${inv.estado.toLowerCase()} o fuera de horario)`,
           origen,
         });
         if (vigente)
@@ -324,7 +521,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
       const desconocido = Math.random() < 0.3;
       const r = residentes[Math.floor(Math.random() * residentes.length)];
-      const metodo = op.metodo ?? (Math.random() < 0.5 ? "Reconocimiento facial" : "Huella dactilar");
+      const metodo =
+        op.metodo ?? (Math.random() < 0.5 ? "Reconocimiento facial" : "Huella dactilar");
       return registrarEvento({
         ...fechaHora(ahora),
         persona: desconocido || !r ? "Persona no identificada" : `${r.nombre} ${r.apellido}`,
@@ -344,16 +542,47 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
 
   const iniciarSesion = useCallback(async (correo: string, clave: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email: correo.trim().toLowerCase(), password: clave });
-    if (error) return { ok: false, error: "Correo o contraseña incorrectos." };
-    const { data: perfil } = await supabase.from("profiles").select("estado").eq("id", data.user.id).maybeSingle();
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: correo.trim().toLowerCase(),
+      password: clave,
+    });
+    if (error) {
+      console.error("No se pudo iniciar sesión:", error);
+      return {
+        ok: false,
+        error: error.message.toLowerCase().includes("email logins are disabled")
+          ? mensajeErrorAuth(error.message)
+          : "Correo o contraseña incorrectos.",
+      };
+    }
+    const { data: perfil, error: errorPerfil } = await supabase
+      .from("profiles")
+      .select("estado")
+      .eq("id", data.user.id)
+      .maybeSingle();
+    if (errorPerfil) {
+      console.error("No se pudo verificar el perfil al iniciar sesión:", errorPerfil);
+      await supabase.auth.signOut();
+      return {
+        ok: false,
+        error: "No se pudo verificar el estado de tu cuenta. Inténtalo de nuevo.",
+      };
+    }
+    if (!perfil) {
+      await supabase.auth.signOut();
+      return {
+        ok: false,
+        error: "No se encontró el perfil de esta cuenta. Comunícate con la administración.",
+      };
+    }
     if (perfil?.estado !== "Activo") {
       await supabase.auth.signOut();
       return {
         ok: false,
-        error: perfil?.estado === "Rechazado"
-          ? "Tu solicitud fue rechazada. Comunícate con la administración."
-          : "Tu cuenta está pendiente de aprobación por la administración.",
+        error:
+          perfil?.estado === "Rechazado"
+            ? "Tu solicitud fue rechazada. Comunícate con la administración."
+            : "Tu cuenta está pendiente de aprobación por la administración.",
       };
     }
     return { ok: true };
@@ -365,10 +594,19 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       password: d.clave,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { nombre: d.nombre, apellido: d.apellido, telefono: d.telefono, documento: d.documento, vivienda: d.vivienda },
+        data: {
+          nombre: d.nombre,
+          apellido: d.apellido,
+          telefono: d.telefono,
+          documento: d.documento,
+          vivienda: d.vivienda,
+        },
       },
     });
-    if (error) return { ok: false, error: error.message };
+    if (error) {
+      console.error("No se pudo enviar la solicitud de acceso:", error);
+      return { ok: false, error: mensajeErrorAuth(error.message) };
+    }
     await supabase.auth.signOut();
     return { ok: true };
   }, []);
@@ -382,59 +620,234 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     (datos: Partial<Usuario>) => {
       if (!usuario) return;
       setUsuario((prev) => (prev ? { ...prev, ...datos } : prev));
-      const campos = limpiar({ nombre: datos.nombre, apellido: datos.apellido, telefono: datos.telefono });
-      supabase.from("profiles").update(campos).eq("id", usuario.id).then(({ error }) => avisarError(error));
+      const campos = limpiar({
+        nombre: datos.nombre,
+        apellido: datos.apellido,
+        telefono: datos.telefono,
+      });
+      supabase
+        .from("profiles")
+        .update(campos)
+        .eq("id", usuario.id)
+        .then(({ error }) => avisarError(error));
       if (usuario.residenteId) {
-        setResidentes((prev) => prev.map((r) => (r.id === usuario.residenteId ? { ...r, ...campos } : r)));
-        supabase.from("residentes").update(campos).eq("id", usuario.residenteId).then(({ error }) => avisarError(error));
+        setResidentes((prev) =>
+          prev.map((r) => (r.id === usuario.residenteId ? { ...r, ...campos } : r)),
+        );
+        supabase
+          .from("residentes")
+          .update(campos)
+          .eq("id", usuario.residenteId)
+          .then(({ error }) => avisarError(error));
       }
       auditar("Editó", "Perfil", "Actualización de datos personales");
     },
     [usuario, auditar],
   );
 
-  const aprobarSolicitud = useCallback(async (userId: string, viviendaId: string) => {
-    const s = solicitudes.find((x) => x.id === userId);
-    const { error } = await supabase.rpc("aprobar_usuario", { _user_id: userId, _vivienda_id: viviendaId });
-    if (error) return error.message;
-    auditar("Aprobó", "Cuenta", s ? `${s.nombre} ${s.apellido} (${s.correo})` : userId);
-    await cargarTodo(usuario?.id ?? null);
-    return null;
-  }, [solicitudes, auditar, cargarTodo, usuario?.id]);
+  const aprobarSolicitud = useCallback(
+    async (userId: string, viviendaId: string) => {
+      const s = solicitudes.find((x) => x.id === userId);
+      const { error } = await supabase.rpc("aprobar_usuario", {
+        _user_id: userId,
+        _vivienda_id: viviendaId,
+      });
+      if (error) return error.message;
+      auditar("Aprobó", "Cuenta", s ? `${s.nombre} ${s.apellido} (${s.correo})` : userId);
+      await cargarTodo(usuario?.id ?? null);
+      return null;
+    },
+    [solicitudes, auditar, cargarTodo, usuario?.id],
+  );
 
-  const rechazarSolicitud = useCallback(async (userId: string) => {
-    const s = solicitudes.find((x) => x.id === userId);
-    const { error } = await supabase.rpc("rechazar_usuario", { _user_id: userId });
-    if (error) return error.message;
-    setSolicitudes((prev) => prev.map((x) => (x.id === userId ? { ...x, estado: "Rechazado" } : x)));
-    auditar("Rechazó", "Cuenta", s ? `${s.nombre} ${s.apellido} (${s.correo})` : userId);
-    return null;
-  }, [solicitudes, auditar]);
+  const rechazarSolicitud = useCallback(
+    async (userId: string) => {
+      const s = solicitudes.find((x) => x.id === userId);
+      const { error } = await supabase.rpc("rechazar_usuario", { _user_id: userId });
+      if (error) return error.message;
+      setSolicitudes((prev) =>
+        prev.map((x) => (x.id === userId ? { ...x, estado: "Rechazado" } : x)),
+      );
+      auditar("Rechazó", "Cuenta", s ? `${s.nombre} ${s.apellido} (${s.correo})` : userId);
+      return null;
+    },
+    [solicitudes, auditar],
+  );
+
+  const registrarRostro = useCallback(
+    async (residenteId: string) => {
+      const { data, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) return { ok: false, error: sessionError.message };
+      if (!data.session) return { ok: false, error: "Inicia sesión como administrador." };
+
+      try {
+        const apiUrl = import.meta.env.VITE_FACE_API_URL || "http://127.0.0.1:8765";
+        const response = await fetch(`${apiUrl}/api/register`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${data.session.access_token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ residente_id: residenteId }),
+        });
+        const result = (await response.json()) as { error?: string; ok?: boolean };
+        if (!response.ok || !result.ok)
+          return { ok: false, error: result.error ?? "No se pudo registrar el rostro." };
+      } catch (error) {
+        return {
+          ok: false,
+          error:
+            error instanceof Error ? error.message : "No se pudo conectar con el servicio facial.",
+        };
+      }
+
+      const fecha = new Date().toISOString().slice(0, 10);
+      const { data: existing, error: lookupError } = await supabase
+        .from("biometria")
+        .select("id")
+        .eq("residente_id", residenteId)
+        .eq("tipo", "Rostro")
+        .limit(1)
+        .maybeSingle();
+      if (lookupError) return { ok: false, error: lookupError.message };
+
+      const campos = {
+        estado: "Registrada",
+        fecha_registro: fecha,
+        fecha_actualizacion: fecha,
+      };
+      const { data: saved, error: saveError } = existing
+        ? await supabase.from("biometria").update(campos).eq("id", existing.id).select().single()
+        : await supabase
+            .from("biometria")
+            .insert({ residente_id: residenteId, tipo: "Rostro", ...campos })
+            .select()
+            .single();
+      if (saveError) return { ok: false, error: saveError.message };
+
+      const referencia: ReferenciaBiometrica = {
+        id: saved.id,
+        residenteId: saved.residente_id,
+        tipo: "Rostro",
+        estado: "Registrada",
+        fechaRegistro: saved.fecha_registro,
+        fechaActualizacion: saved.fecha_actualizacion,
+      };
+      setBiometria((prev) => [
+        ...prev.filter((b) => !(b.residenteId === residenteId && b.tipo === "Rostro")),
+        referencia,
+      ]);
+      const residente = residentes.find((r) => r.id === residenteId);
+      auditar(
+        "Registró",
+        "Biometría facial",
+        residente ? `${residente.nombre} ${residente.apellido}` : residenteId,
+      );
+      return { ok: true };
+    },
+    [auditar, residentes],
+  );
+
+  const verificarRostro = useCallback(async (frame?: string): Promise<ResultadoReconocimiento> => {
+    const { data, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) throw new Error(sessionError.message);
+    if (!data.session) throw new Error("Inicia sesión como administrador.");
+
+    const apiUrl = import.meta.env["VITE_FACE_API_URL"] || "http://127.0.0.1:8765";
+    const response = await fetch(`${apiUrl}/api/recognize`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${data.session.access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(frame ? { frame } : {}),
+    });
+    const result = (await response.json()) as {
+      biometria_registrada?: boolean;
+      confidence?: number;
+      error?: string;
+      reason?: string;
+      recognized?: boolean;
+      residente_id?: string;
+    };
+    if (!response.ok) throw new Error(result.error ?? "No se pudo verificar el rostro.");
+    if (typeof result.recognized !== "boolean")
+      throw new Error("El servicio facial devolvió una respuesta inválida.");
+    if (result.recognized && result.residente_id && result.biometria_registrada) {
+      const fecha = new Date().toISOString().slice(0, 10);
+      setBiometria((prev) => {
+        const actual = prev.find(
+          (entry) => entry.residenteId === result.residente_id && entry.tipo === "Rostro",
+        );
+        const rostro: ReferenciaBiometrica = {
+          id: actual?.id ?? nuevoId(),
+          residenteId: result.residente_id!,
+          tipo: "Rostro",
+          estado: "Registrada",
+          fechaRegistro: actual?.fechaRegistro ?? fecha,
+          fechaActualizacion: fecha,
+        };
+        return [...prev.filter((entry) => entry.id !== rostro.id), rostro];
+      });
+    }
+    return {
+      reconocido: result.recognized,
+      biometriaRegistrada: result.biometria_registrada,
+      residenteId: result.residente_id,
+      confianza: result.confidence,
+      motivo: result.reason,
+    };
+  }, []);
 
   const value = useMemo<StoreValue>(() => {
-    const miResidente = usuario?.residenteId ? (residentes.find((r) => r.id === usuario.residenteId) ?? null) : null;
-    const miVivienda = miResidente ? (viviendas.find((v) => v.id === miResidente.viviendaId) ?? null) : null;
+    const miResidente = usuario?.residenteId
+      ? (residentes.find((r) => r.id === usuario.residenteId) ?? null)
+      : null;
+    const miVivienda = miResidente
+      ? (viviendas.find((v) => v.id === miResidente.viviendaId) ?? null)
+      : null;
     const persona = (x: { nombre: string; apellido: string }) => `${x.nombre} ${x.apellido}`;
 
     const permisos: PermisoAcceso[] = [
       ...residentes.map<PermisoAcceso>((r) => ({
-        id: `p-${r.id}`, persona: persona(r), tipo: "Residente", viviendaId: r.viviendaId,
-        metodo: "Biometría multimodal", inicio: r.fechaRegistro, fin: null,
+        id: `p-${r.id}`,
+        persona: persona(r),
+        tipo: "Residente",
+        viviendaId: r.viviendaId,
+        metodo: "Biometría multimodal",
+        inicio: r.fechaRegistro,
+        fin: null,
         estado: r.estado === "Activo" ? "Activo" : "Revocado",
       })),
       ...invitados.map<PermisoAcceso>((i) => ({
-        id: `p-${i.id}`, persona: persona(i), tipo: "Invitado", viviendaId: i.viviendaId,
-        metodo: "Permiso temporal", inicio: i.inicio, fin: i.fin, estado: i.estado,
+        id: `p-${i.id}`,
+        persona: persona(i),
+        tipo: "Invitado",
+        viviendaId: i.viviendaId,
+        metodo: "Permiso temporal",
+        inicio: i.inicio,
+        fin: i.fin,
+        estado: i.estado,
       })),
     ];
 
     // Avisos de expiración derivados: permisos activos que vencen en < 48 h.
     const ahora = Date.now();
     const expiraciones = invitados
-      .filter((i) => i.estado === "Activo" && new Date(i.fin).getTime() > ahora && new Date(i.fin).getTime() - ahora < 48 * 3600000)
+      .filter(
+        (i) =>
+          i.estado === "Activo" &&
+          new Date(i.fin).getTime() > ahora &&
+          new Date(i.fin).getTime() - ahora < 48 * 3600000,
+      )
       .map((i) => ({
-        id: `exp-${i.id}`, residenteId: i.anfitrionId, tipo: "Expiración" as const, titulo: "Permiso por expirar",
-        mensaje: `El pase de ${persona(i)} vence pronto.`, fecha: i.fin, leida: false,
+        id: `exp-${i.id}`,
+        residenteId: i.anfitrionId,
+        tipo: "Expiración" as const,
+        titulo: "Permiso por expirar",
+        mensaje: `El pase de ${persona(i)} vence pronto.`,
+        fecha: i.fin,
+        leida: false,
       }));
     const todas = [...notifs, ...expiraciones]
       .filter((n) => usuario?.rol === "Administrador" || n.residenteId === usuario?.residenteId)
@@ -455,40 +868,67 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       crearResidente: (r) => {
         const nuevo = { ...r, id: nuevoId(), fechaRegistro: new Date().toISOString().slice(0, 10) };
         setResidentes((prev) => [nuevo, ...prev]);
-        supabase.from("residentes").insert({ id: nuevo.id, ...aResidente(r) } as never).then(({ error }) => avisarError(error));
+        supabase
+          .from("residentes")
+          .insert({ id: nuevo.id, ...aResidente(r) } as never)
+          .then(({ error }) => avisarError(error));
         auditar("Creó", "Residente", persona(r));
       },
       actualizarResidente: (id, datos) => {
         const r = residentes.find((x) => x.id === id);
         setResidentes((prev) => prev.map((x) => (x.id === id ? { ...x, ...datos } : x)));
-        supabase.from("residentes").update(aResidente(datos)).eq("id", id).then(({ error }) => avisarError(error));
-        const accion = datos.estado === "Activo" ? "Activó" : datos.estado === "Inactivo" ? "Desactivó" : "Editó";
+        supabase
+          .from("residentes")
+          .update(aResidente(datos))
+          .eq("id", id)
+          .then(({ error }) => avisarError(error));
+        const accion =
+          datos.estado === "Activo"
+            ? "Activó"
+            : datos.estado === "Inactivo"
+              ? "Desactivó"
+              : "Editó";
         auditar(accion, "Residente", r ? persona(r) : id);
       },
       viviendas,
       crearVivienda: (v) => {
         const nueva = { ...v, id: nuevoId() };
         setViviendas((prev) => [nueva, ...prev]);
-        supabase.from("viviendas").insert({ id: nueva.id, ...aVivienda(v) } as never).then(({ error }) => avisarError(error));
+        supabase
+          .from("viviendas")
+          .insert({ id: nueva.id, ...aVivienda(v) } as never)
+          .then(({ error }) => avisarError(error));
         auditar("Creó", "Vivienda", v.codigo);
       },
       actualizarVivienda: (id, datos) => {
         setViviendas((prev) => prev.map((v) => (v.id === id ? { ...v, ...datos } : v)));
-        supabase.from("viviendas").update(aVivienda(datos)).eq("id", id).then(({ error }) => avisarError(error));
+        supabase
+          .from("viviendas")
+          .update(aVivienda(datos))
+          .eq("id", id)
+          .then(({ error }) => avisarError(error));
         auditar("Editó", "Vivienda", viviendas.find((v) => v.id === id)?.codigo ?? id);
       },
       invitados,
       crearInvitado: (i) => {
-        const nuevo = { ...i, id: nuevoId() };
+        const nuevo = { ...i, id: nuevoId(), qrToken: nuevoId(), qrUsadoAt: null };
         setInvitados((prev) => [nuevo, ...prev]);
-        supabase.from("invitados").insert({ id: nuevo.id, ...aInvitado(i) } as never).then(({ error }) => avisarError(error));
+        supabase
+          .from("invitados")
+          .insert({ id: nuevo.id, ...aInvitado(nuevo) } as never)
+          .then(({ error }) => avisarError(error));
         auditar("Creó", "Permiso de invitado", `${persona(i)} · estado ${i.estado}`);
       },
       actualizarInvitado: (id, datos) => {
         const i = invitados.find((x) => x.id === id);
         setInvitados((prev) => prev.map((x) => (x.id === id ? { ...x, ...datos } : x)));
-        supabase.from("invitados").update(aInvitado(datos)).eq("id", id).then(({ error }) => avisarError(error));
-        const accion = datos.estado === "Activo" ? "Aprobó" : datos.estado === "Revocado" ? "Revocó" : "Editó";
+        supabase
+          .from("invitados")
+          .update(aInvitado(datos))
+          .eq("id", id)
+          .then(({ error }) => avisarError(error));
+        const accion =
+          datos.estado === "Activo" ? "Aprobó" : datos.estado === "Revocado" ? "Revocó" : "Editó";
         auditar(accion, "Permiso de invitado", i ? persona(i) : id);
         if (i && datos.estado && usuario?.rol === "Administrador")
           notificar({
@@ -502,24 +942,39 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       crearDispositivo: (d) => {
         const nuevo = { ...d, id: nuevoId(), ultimaConexion: "hace instantes" };
         setDispositivos((prev) => [nuevo, ...prev]);
-        supabase.from("dispositivos").insert({ id: nuevo.id, ...aDispositivo(nuevo) } as never).then(({ error }) => avisarError(error));
+        supabase
+          .from("dispositivos")
+          .insert({ id: nuevo.id, ...aDispositivo(nuevo) } as never)
+          .then(({ error }) => avisarError(error));
         auditar("Creó", "Dispositivo", d.nombre);
       },
       actualizarDispositivo: (id, datos) => {
         setDispositivos((prev) => prev.map((d) => (d.id === id ? { ...d, ...datos } : d)));
-        supabase.from("dispositivos").update(aDispositivo(datos)).eq("id", id).then(({ error }) => avisarError(error));
+        supabase
+          .from("dispositivos")
+          .update(aDispositivo(datos))
+          .eq("id", id)
+          .then(({ error }) => avisarError(error));
         auditar("Editó", "Dispositivo", dispositivos.find((d) => d.id === id)?.nombre ?? id);
       },
       eventos,
       simularIntento,
       registrarEvento,
+      validarPase,
+      verificarRostro,
       biometria,
+      registrarRostro,
       permisos,
       notificaciones: todas,
       marcarLeidas: () => {
         setLeidasLocal((prev) => new Set([...prev, ...todas.map((n) => n.id)]));
         const ids = notifs.filter((n) => !n.leida).map((n) => n.id);
-        if (ids.length) supabase.from("notificaciones").update({ leida: true }).in("id", ids).then(() => {});
+        if (ids.length)
+          supabase
+            .from("notificaciones")
+            .update({ leida: true })
+            .in("id", ids)
+            .then(() => {});
       },
       auditoria,
       tema,
@@ -534,9 +989,33 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       nombreDispositivo: (id) => dispositivos.find((d) => d.id === id)?.nombre ?? "—",
     };
   }, [
-    usuario, cargado, iniciarSesion, registrarse, cerrarSesion, actualizarPerfil, solicitudes, aprobarSolicitud,
-    rechazarSolicitud, residentes, viviendas, invitados, dispositivos, eventos, simularIntento, registrarEvento,
-    biometria, notifs, leidasLocal, auditoria, auditar, notificar, tema, alternarTema,
+    usuario,
+    cargado,
+    iniciarSesion,
+    registrarse,
+    cerrarSesion,
+    actualizarPerfil,
+    solicitudes,
+    aprobarSolicitud,
+    rechazarSolicitud,
+    residentes,
+    viviendas,
+    invitados,
+    dispositivos,
+    eventos,
+    simularIntento,
+    registrarEvento,
+    validarPase,
+    verificarRostro,
+    biometria,
+    registrarRostro,
+    notifs,
+    leidasLocal,
+    auditoria,
+    auditar,
+    notificar,
+    tema,
+    alternarTema,
   ]);
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;

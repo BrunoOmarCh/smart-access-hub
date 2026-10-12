@@ -6,7 +6,8 @@ import { useStore } from "@/lib/store";
 import { meta } from "@/lib/meta";
 
 export const Route = createFileRoute("/biometria")({
-  head: () => meta("Biometría", "Estado de las referencias biométricas protegidas de los residentes."),
+  head: () =>
+    meta("Biometría", "Estado de las referencias biométricas protegidas de los residentes."),
   component: Page,
 });
 
@@ -14,7 +15,10 @@ function Page() {
   const { biometria, nombreResidente } = useStore();
   return (
     <AppShell tituloPagina="Biometría">
-      <PageIntro titulo="Referencias biométricas" descripcion="Solo se muestra el estado del registro, nunca datos biométricos." />
+      <PageIntro
+        titulo="Referencias biométricas"
+        descripcion="Solo se muestra el estado del registro, nunca datos biométricos."
+      />
       <div className="grid gap-4 md:grid-cols-3">
         {[
           [ScanFace, "Reconocimiento facial", "Módulo preparado para integración futura."],
@@ -24,7 +28,9 @@ function Page() {
           const Icono = I as typeof ShieldCheck;
           return (
             <div key={t as string} className="glass rounded-3xl p-5">
-              <span className="bg-brand-soft text-primary grid size-10 place-items-center rounded-xl"><Icono className="size-5" /></span>
+              <span className="bg-brand-soft text-primary grid size-10 place-items-center rounded-xl">
+                <Icono className="size-5" />
+              </span>
               <p className="font-display text-ink mt-3 font-bold">{t as string}</p>
               <p className="text-muted-foreground text-xs">{d as string}</p>
             </div>
@@ -39,7 +45,9 @@ function Page() {
               <tr key={b.id}>
                 <Td className="text-ink font-semibold">{nombreResidente(b.residenteId)}</Td>
                 <Td>{b.tipo}</Td>
-                <Td><EstadoBadge estado={b.estado} /></Td>
+                <Td>
+                  <EstadoBadge estado={b.estado} />
+                </Td>
                 <Td>{b.fechaRegistro || "—"}</Td>
                 <Td>{b.fechaActualizacion || "—"}</Td>
               </tr>

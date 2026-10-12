@@ -22,9 +22,7 @@ export function PanelHeader({
     <div className="flex flex-wrap items-center justify-between gap-3 px-5 pt-5">
       <div>
         <h2 className="font-display text-base font-bold text-ink">{titulo}</h2>
-        {descripcion ? (
-          <p className="mt-0.5 text-xs text-muted-foreground">{descripcion}</p>
-        ) : null}
+        {descripcion ? <p className="mt-0.5 text-xs text-muted-foreground">{descripcion}</p> : null}
       </div>
       {accion}
     </div>
@@ -125,8 +123,7 @@ export function Button({
   ...props
 }: ComponentProps<"button"> & { variante?: "primario" | "suave" | "fantasma" | "peligro" }) {
   const estilos = {
-    primario:
-      "bg-primary text-primary-foreground shadow-md shadow-primary/30 hover:bg-primary/90",
+    primario: "bg-primary text-primary-foreground shadow-md shadow-primary/30 hover:bg-primary/90",
     suave: "bg-surface/80 text-ink ring-1 ring-black/5 hover:bg-surface",
     fantasma: "text-muted-foreground hover:bg-surface/70 hover:text-ink",
     peligro: "bg-danger-soft text-destructive hover:bg-danger-soft/70",
@@ -184,13 +181,7 @@ export function ErrorMsg({ children }: { children: ReactNode }) {
 
 /* ---------------------------------- Tabla ---------------------------------- */
 
-export function Table({
-  columnas,
-  children,
-}: {
-  columnas: string[];
-  children: ReactNode;
-}) {
+export function Table({ columnas, children }: { columnas: string[]; children: ReactNode }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">

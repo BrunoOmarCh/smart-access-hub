@@ -20,18 +20,28 @@ function Page() {
         <div className="grid gap-6 lg:grid-cols-2">
           <Panel className="p-6">
             <div className="flex items-start justify-between">
-              <span className="bg-brand-soft text-primary grid size-12 place-items-center rounded-2xl"><Building2 className="size-6" /></span>
+              <span className="bg-brand-soft text-primary grid size-12 place-items-center rounded-2xl">
+                <Building2 className="size-6" />
+              </span>
               <EstadoBadge estado={miVivienda.estado} />
             </div>
             <p className="font-display text-ink mt-4 text-3xl font-bold">{miVivienda.codigo}</p>
-            <p className="text-muted-foreground text-sm">Torre {miVivienda.torre} · Piso {miVivienda.piso}</p>
+            <p className="text-muted-foreground text-sm">
+              Torre {miVivienda.torre} · Piso {miVivienda.piso}
+            </p>
           </Panel>
           <Panel>
             <PanelHeader titulo="Residentes vinculados" />
             <ul className="space-y-2 p-5">
               {rs.map((r) => (
-                <li key={r.id} className="bg-surface/60 flex items-center justify-between rounded-xl p-3 text-sm">
-                  <span className="text-ink font-semibold">{r.nombre} {r.apellido}</span><EstadoBadge estado={r.estado} />
+                <li
+                  key={r.id}
+                  className="bg-surface/60 flex items-center justify-between rounded-xl p-3 text-sm"
+                >
+                  <span className="text-ink font-semibold">
+                    {r.nombre} {r.apellido}
+                  </span>
+                  <EstadoBadge estado={r.estado} />
                 </li>
               ))}
             </ul>

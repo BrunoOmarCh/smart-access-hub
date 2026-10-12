@@ -16,7 +16,12 @@ function Page() {
   const lista = esAdmin ? eventos : eventos.filter((e) => e.viviendaId === miVivienda?.id);
   return (
     <AppShell tituloPagina="Historial">
-      <PageIntro titulo="Historial de accesos" descripcion={esAdmin ? "Registro completo con trazabilidad." : "Accesos relacionados con tu vivienda."} />
+      <PageIntro
+        titulo="Historial de accesos"
+        descripcion={
+          esAdmin ? "Registro completo con trazabilidad." : "Accesos relacionados con tu vivienda."
+        }
+      />
       <TablaEventos eventos={lista} />
     </AppShell>
   );

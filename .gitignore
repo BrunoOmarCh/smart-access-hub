@@ -15,6 +15,16 @@ dist-ssr
 .tanstack/**
 .nitro
 *.local
+supabase/.temp/
+supabase/.branches/
+
+# Entorno y plantillas biométricas locales
+esp32-cam/venv/
+esp32-cam/server/database/users.json
+esp32-cam/server/database/embeddings/*.npy
+esp32-cam/esp32/camera_stream/secrets.h
+__pycache__/
+*.py[cod]
 
 # Wrangler / Cloudflare
 .wrangler/

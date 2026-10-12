@@ -6,7 +6,11 @@ import { useStore } from "@/lib/store";
 import { meta } from "@/lib/meta";
 
 export const Route = createFileRoute("/")({
-  head: () => meta("Iniciar sesión", "Accede a SmartAccess, el control de acceso biométrico multimodal para condominios."),
+  head: () =>
+    meta(
+      "Iniciar sesión",
+      "Accede a SmartAccess, el control de acceso biométrico multimodal para condominios.",
+    ),
   component: Login,
 });
 
@@ -55,7 +59,10 @@ function Login() {
             ].map(([I, t, d]) => {
               const Icono = I as typeof ShieldCheck;
               return (
-                <div key={t as string} className="glass-soft flex items-center gap-3 rounded-2xl p-3">
+                <div
+                  key={t as string}
+                  className="glass-soft flex items-center gap-3 rounded-2xl p-3"
+                >
                   <span className="bg-brand-soft text-primary grid size-9 place-items-center rounded-xl">
                     <Icono className="size-4" />
                   </span>
@@ -71,19 +78,37 @@ function Login() {
         <form onSubmit={enviar} className="glass space-y-4 rounded-3xl p-8">
           <div>
             <h2 className="font-display text-ink text-2xl font-bold">Iniciar sesión</h2>
-            <p className="text-muted-foreground mt-1 text-sm">Ingresa con tu cuenta de SmartAccess.</p>
+            <p className="text-muted-foreground mt-1 text-sm">
+              Ingresa con tu cuenta de SmartAccess.
+            </p>
           </div>
           <Field label="Correo electrónico">
-            <Input type="email" required value={correo} onChange={(e) => setCorreo(e.target.value)} placeholder="tu@correo.com" />
+            <Input
+              type="email"
+              required
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+              placeholder="tu@correo.com"
+            />
           </Field>
           <Field label="Contraseña">
-            <Input type="password" required value={clave} onChange={(e) => setClave(e.target.value)} placeholder="••••••••" />
+            <Input
+              type="password"
+              required
+              value={clave}
+              onChange={(e) => setClave(e.target.value)}
+              placeholder="••••••••"
+            />
           </Field>
           <ErrorMsg>{error}</ErrorMsg>
-          <Button type="submit" disabled={enviando} className="w-full py-2.5">{enviando ? "Ingresando…" : "Ingresar"}</Button>
+          <Button type="submit" disabled={enviando} className="w-full py-2.5">
+            {enviando ? "Ingresando…" : "Ingresar"}
+          </Button>
           <p className="text-muted-foreground text-center text-sm">
             ¿Eres residente y no tienes cuenta?{" "}
-            <Link to="/registro" className="text-primary font-semibold hover:underline">Solicitar acceso</Link>
+            <Link to="/registro" className="text-primary font-semibold hover:underline">
+              Solicitar acceso
+            </Link>
           </p>
           <div className="bg-neutral-soft space-y-2 rounded-2xl p-4 text-xs">
             <p className="text-ink font-semibold">Cuentas de demostración (clave: demo1234)</p>
@@ -91,7 +116,10 @@ function Login() {
               <button
                 type="button"
                 key={c}
-                onClick={() => { setCorreo(c); setClave("demo1234"); }}
+                onClick={() => {
+                  setCorreo(c);
+                  setClave("demo1234");
+                }}
                 className="text-primary block font-medium hover:underline"
               >
                 {c}

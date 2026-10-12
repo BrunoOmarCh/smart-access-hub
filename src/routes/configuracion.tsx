@@ -25,25 +25,50 @@ function Page() {
         <Panel>
           <PanelHeader titulo="Condominio" />
           <div className="space-y-4 p-5">
-            <Field label="Nombre"><Input defaultValue={CONDOMINIO.nombre} /></Field>
-            <Field label="Dirección"><Input defaultValue={CONDOMINIO.direccion} /></Field>
-            <Field label="Descripción"><Input defaultValue={CONDOMINIO.descripcion} /></Field>
+            <Field label="Nombre">
+              <Input defaultValue={CONDOMINIO.nombre} />
+            </Field>
+            <Field label="Dirección">
+              <Input defaultValue={CONDOMINIO.direccion} />
+            </Field>
+            <Field label="Descripción">
+              <Input defaultValue={CONDOMINIO.descripcion} />
+            </Field>
           </div>
         </Panel>
         <Panel>
           <PanelHeader titulo="Privacidad y protección de datos" />
           <ul className="space-y-2 p-5">
             {politicas.map((p) => (
-              <li key={p} className="bg-surface/60 flex items-center justify-between gap-3 rounded-xl p-3 text-sm">
-                <span className="text-ink/80">{p}</span><Badge tono="exito" punto>Activa</Badge>
+              <li
+                key={p}
+                className="bg-surface/60 flex items-center justify-between gap-3 rounded-xl p-3 text-sm"
+              >
+                <span className="text-ink/80">{p}</span>
+                <Badge tono="exito" punto>
+                  Activa
+                </Badge>
               </li>
             ))}
           </ul>
         </Panel>
         <Panel className="lg:col-span-2">
-          <PanelHeader titulo="Integraciones futuras" descripcion="Preparadas en la arquitectura del MVP." />
+          <PanelHeader
+            titulo="Integraciones futuras"
+            descripcion="Preparadas en la arquitectura del MVP."
+          />
           <div className="flex flex-wrap gap-2 p-5">
-            {["Reconocimiento facial", "Huella dactilar", "Controladores IoT", "Cerraduras/Relés", "Notificaciones"].map((i) => <Badge key={i} tono="alerta">{i} · Pendiente</Badge>)}
+            {[
+              "Reconocimiento facial",
+              "Huella dactilar",
+              "Controladores IoT",
+              "Cerraduras/Relés",
+              "Notificaciones",
+            ].map((i) => (
+              <Badge key={i} tono="alerta">
+                {i} · Pendiente
+              </Badge>
+            ))}
           </div>
         </Panel>
       </div>

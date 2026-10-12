@@ -12,10 +12,22 @@ export const Route = createFileRoute("/permisos")({
 
 function Page() {
   const { usuario, permisos, miVivienda, nombreVivienda } = useStore();
-  const lista = usuario?.rol === "Administrador" ? permisos : permisos.filter((p) => p.viviendaId === miVivienda?.id);
-  const vigencia = (p: (typeof lista)[number]) => (p.fin ? `${fechaCorta(p.inicio)} → ${fechaCorta(p.fin)}` : `Desde ${p.inicio} · Permanente`);
+  const lista =
+    usuario?.rol === "Administrador"
+      ? permisos
+      : permisos.filter((p) => p.viviendaId === miVivienda?.id);
+  const vigencia = (p: (typeof lista)[number]) =>
+    p.fin ? `${fechaCorta(p.inicio)} → ${fechaCorta(p.fin)}` : `Desde ${p.inicio} · Permanente`;
   const columnas = ["Persona", "Tipo", "Vivienda", "Método", "Vigencia", "Estado"];
-  const filas = () => lista.map((p) => [p.persona, p.tipo, nombreVivienda(p.viviendaId), p.metodo, vigencia(p), p.estado]);
+  const filas = () =>
+    lista.map((p) => [
+      p.persona,
+      p.tipo,
+      nombreVivienda(p.viviendaId),
+      p.metodo,
+      vigencia(p),
+      p.estado,
+    ]);
   return (
     <AppShell tituloPagina="Permisos de acceso">
       <PageIntro
@@ -23,8 +35,15 @@ function Page() {
         descripcion="Quién puede ingresar, por qué medio y durante qué periodo."
         accion={
           <div className="flex gap-2">
-            <Button variante="suave" onClick={() => descargarCSV("permisos", columnas, filas())}>Exportar CSV</Button>
-            <Button variante="suave" onClick={() => imprimirPDF("Reporte de permisos de acceso", columnas, filas())}>Exportar PDF</Button>
+            <Button variante="suave" onClick={() => descargarCSV("permisos", columnas, filas())}>
+              Exportar CSV
+            </Button>
+            <Button
+              variante="suave"
+              onClick={() => imprimirPDF("Reporte de permisos de acceso", columnas, filas())}
+            >
+              Exportar PDF
+            </Button>
           </div>
         }
       />
@@ -34,7 +53,9 @@ function Page() {
           {lista.map((p) => (
             <tr key={p.id}>
               <Td className="text-ink font-semibold">{p.persona}</Td>
-              <Td><Badge tono={p.tipo === "Residente" ? "marca" : "neutro"}>{p.tipo}</Badge></Td>
+              <Td>
+                <Badge tono={p.tipo === "Residente" ? "marca" : "neutro"}>{p.tipo}</Badge>
+              </Td>
               <Td>{nombreVivienda(p.viviendaId)}</Td>
               <Td>{p.metodo}</Td>
               <Td className="text-xs">
@@ -45,7 +66,9 @@ function Page() {
                   </span>
                 ) : null}
               </Td>
-              <Td><EstadoBadge estado={p.estado} /></Td>
+              <Td>
+                <EstadoBadge estado={p.estado} />
+              </Td>
             </tr>
           ))}
         </Table>

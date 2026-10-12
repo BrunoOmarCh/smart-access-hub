@@ -7,7 +7,8 @@ import { useStore } from "@/lib/store";
 import { meta } from "@/lib/meta";
 
 export const Route = createFileRoute("/eventos")({
-  head: () => meta("Eventos de acceso", "Monitoreo de intentos de acceso autorizados y rechazados."),
+  head: () =>
+    meta("Eventos de acceso", "Monitoreo de intentos de acceso autorizados y rechazados."),
   component: Page,
 });
 

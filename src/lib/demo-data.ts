@@ -42,6 +42,8 @@ export type EstadoInvitado = "Pendiente" | "Activo" | "Expirado" | "Revocado";
 
 export interface Invitado {
   id: string;
+  qrToken?: string;
+  qrUsadoAt?: string | null;
   nombre: string;
   apellido: string;
   documento: string;
@@ -53,11 +55,7 @@ export interface Invitado {
 }
 
 export type TipoDispositivo =
-  | "Controlador de acceso"
-  | "Cámara"
-  | "Lector biométrico"
-  | "Sensor"
-  | "Cerradura/Relé";
+  "Controlador de acceso" | "Cámara" | "Lector biométrico" | "Sensor" | "Cerradura/Relé";
 
 export interface Dispositivo {
   id: string;
@@ -70,10 +68,7 @@ export interface Dispositivo {
 }
 
 export type MetodoAcceso =
-  | "Reconocimiento facial"
-  | "Huella dactilar"
-  | "Invitado"
-  | "Administrador";
+  "Reconocimiento facial" | "Huella dactilar" | "Invitado" | "Administrador";
 
 export interface EventoAcceso {
   id: string;
